@@ -16,8 +16,8 @@ from app.events.audit import AuditSink
 from app.schemas.agents import (
     AgentResult,
     AgentRole,
-    Mission,
     Evidence,
+    Mission,
     TaskStatus,
     VerificationResult,
 )
@@ -94,7 +94,9 @@ class AegisRuntime:
             task.task_id for task in tasks.values() if task.status == TaskStatus.COMPLETED
         }
         for task in tasks.values():
-            if task.status == TaskStatus.PENDING and all(dep in completed for dep in task.dependencies):
+            if task.status == TaskStatus.PENDING and all(
+                dependency in completed for dependency in task.dependencies
+            ):
                 updated = task.model_copy(update={"status": TaskStatus.RUNNING})
                 return {
                     "tasks": {**tasks, task.task_id: updated},

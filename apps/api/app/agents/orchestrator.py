@@ -22,7 +22,8 @@ class OrchestratorAgent(BaseAgent[Plan]):
             Task(
                 agent=AgentRole.DATA_ANALYST,
                 description=(
-                    "Analyze the supplied dataset and calculate evidence-backed statistics and anomalies."
+                    "Analyze the supplied dataset and calculate evidence-backed statistics "
+                    "and anomalies."
                 ),
                 input={"dataset_path": mission.context.get("dataset_path", "")},
             ),
@@ -30,7 +31,8 @@ class OrchestratorAgent(BaseAgent[Plan]):
         verification_task = Task(
             agent=AgentRole.VERIFICATION,
             description=(
-                "Check calculations, evidence coverage, and support for all research and analysis findings."
+                "Check calculations, evidence coverage, and support for all research "
+                "and analysis findings."
             ),
             dependencies=[task.task_id for task in tasks],
         )
@@ -39,7 +41,8 @@ class OrchestratorAgent(BaseAgent[Plan]):
             Task(
                 agent=AgentRole.REPORT,
                 description=(
-                    "Create an executive report using only verified findings and clearly separated recommendations."
+                    "Create an executive report using only verified findings and clearly "
+                    "separated recommendations."
                 ),
                 dependencies=[verification_task.task_id],
             )

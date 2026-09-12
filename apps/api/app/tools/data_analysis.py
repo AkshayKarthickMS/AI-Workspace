@@ -49,7 +49,10 @@ class PandasSalesAnalysisTool:
         top_product = product_summary.sort_values("margin", ascending=False).iloc[0]
         findings.append(
             Finding(
-                statement=f"{top_product['product']} has the highest average transaction margin in the dataset.",
+                statement=(
+                    f"{top_product['product']} has the highest average transaction margin "
+                    "in the dataset."
+                ),
                 category="fact",
                 confidence=0.98,
                 evidence=[source],
@@ -78,7 +81,10 @@ class PandasSalesAnalysisTool:
             change = float(product_year.loc[falling, 2025] - product_year.loc[falling, 2023])
             findings.append(
                 Finding(
-                    statement=f"{falling} average margin changed by {change:.1%} between 2023 and 2025.",
+                    statement=(
+                        f"{falling} average margin changed by {change:.1%} "
+                        "between 2023 and 2025."
+                    ),
                     category="risk",
                     confidence=0.95,
                     evidence=[source],
@@ -90,7 +96,10 @@ class PandasSalesAnalysisTool:
         if not low_inventory.empty:
             findings.append(
                 Finding(
-                    statement="A concentrated set of transactions occurred at the low end of observed inventory levels.",
+                    statement=(
+                        "A concentrated set of transactions occurred at the low end of "
+                        "observed inventory levels."
+                    ),
                     category="anomaly",
                     confidence=0.9,
                     evidence=[source],
@@ -105,7 +114,10 @@ class PandasSalesAnalysisTool:
         if peak_ratio > 1.5:
             findings.append(
                 Finding(
-                    statement=f"Units sold peaked in {peak_period} at {peak_ratio:.1f} times the typical month.",
+                    statement=(
+                        f"Units sold peaked in {peak_period} at {peak_ratio:.1f} times "
+                        "the typical month."
+                    ),
                     category="anomaly",
                     confidence=0.94,
                     evidence=[source],
