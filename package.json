@@ -1,0 +1,13 @@
+{
+  "name": "aegisos",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": ["apps/web", "packages/shared"],
+  "scripts": {
+    "dev": "npm run dev --workspace=@aegisos/web",
+    "build": "npm run build --workspace=@aegisos/web",
+    "lint": "npm run lint --workspace=@aegisos/web",
+    "typecheck": "npm run typecheck --workspace=@aegisos/web"
+  },
+  "engines": { "node": ">=20.9.0", "npm": ">=10" }
+}
