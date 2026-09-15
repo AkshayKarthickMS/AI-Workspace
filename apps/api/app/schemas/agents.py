@@ -4,13 +4,17 @@ from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field, model_validator
 
+from app.schemas.compliance import ComplianceVerdict
+
 
 class AgentRole(StrEnum):
     ORCHESTRATOR = "orchestrator"
     RESEARCH = "research"
-    DATA_ANALYST = "data_analyst"
+    DATA = "data"
+    ANALYST = "analyst"
+    QA = "qa"
+    COMPLIANCE = "compliance"
     REPORT = "report"
-    VERIFICATION = "verification"
 
 
 class Mission(BaseModel):
@@ -26,6 +30,7 @@ class TaskStatus(StrEnum):
     RUNNING = "running"
     COMPLETED = "completed"
     FAILED = "failed"
+    CANCELLED = "cancelled"
 
 
 class Task(BaseModel):
@@ -83,13 +88,14 @@ class AgentResult(BaseModel):
     error: str | None = None
 
 
-class VerificationResult(BaseModel):
-    result_id: UUID = Field(default_factory=uuid4)
-    status: Literal["PASS", "FAIL"]
-    checked_findings: list[UUID] = Field(default_factory=list)
-    unsupported_claims: list[str] = Field(default_factory=list)
-    corrections: list[str] = Field(default_factory=list)
-    evidence: list[Evidence] = Field(default_factory=list)
+class Slide(BaseModel):
+    title: str = Field(min_length=1, max_length=200)
+    bullets: list[str] = Field(default_factory=list, max_length=8)
+
+
+class SlideDeck(BaseModel):
+    title: str = Field(min_length=1, max_length=200)
+    slides: list[Slide] = Field(min_length=1)
 
 
 class FinalReport(BaseModel):
@@ -100,4 +106,6 @@ class FinalReport(BaseModel):
     facts: list[Finding] = Field(default_factory=list)
     recommendations: list[str] = Field(default_factory=list)
     evidence: list[Evidence] = Field(default_factory=list)
-    verification_status: Literal["PASS", "FAIL"]
+    qa_status: Literal["PASS", "FAIL"]
+    compliance_verdict: ComplianceVerdict
+    slide_deck: SlideDeck | None = None

@@ -3,6 +3,8 @@ services:
     build:
       context: .
       dockerfile: infra/docker/web.Dockerfile
+      args:
+        API_INTERNAL_URL: http://api:8000
     environment:
       API_INTERNAL_URL: http://api:8000
     ports:
@@ -19,11 +21,24 @@ services:
       AEGIS_ENVIRONMENT: ${AEGIS_ENVIRONMENT:-development}
       AEGIS_LOG_LEVEL: ${AEGIS_LOG_LEVEL:-INFO}
       AEGIS_CORS_ORIGINS: ${AEGIS_CORS_ORIGINS:-http://localhost:3000}
+      AEGIS_DATABASE_URL: ${AEGIS_DATABASE_URL:-postgresql+psycopg://aegisos:change-me-for-local-development@postgres:5432/aegisos}
+      AEGIS_REDIS_URL: ${AEGIS_REDIS_URL:-redis://redis:6379/0}
+      # Relative to the Dockerfile's WORKDIR (/app), which is where the
+      # Dockerfile copies the repo-root data/ directory - not the "../../"
+      # local-dev default (see app/core/config.py), which assumes uvicorn is
+      # run from apps/api instead.
+      AEGIS_DATA_ROOT: data/demo
+      AEGIS_ARTIFACT_ROOT: data/artifacts
     ports:
       - "${API_PORT:-8000}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     restart: unless-stopped
   postgres:
-    image: postgres:16-alpine
+    image: pgvector/pgvector:pg16
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-aegisos}
       POSTGRES_USER: ${POSTGRES_USER:-aegisos}
@@ -32,8 +47,21 @@ services:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./infra/docker/postgres/init-extensions.sql:/docker-entrypoint-initdb.d/init-extensions.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+  redis:
+    image: redis:7-alpine
+    # Ephemeral event-bus/fan-out only (see AGENTS.md) - intentionally no
+    # persistent volume; nothing durable is ever read back only from here.
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 3s
       retries: 10
@@ -53,7 +81,40 @@ services:
     volumes:
       - qdrant_data:/qdrant/storage
     restart: unless-stopped
+  langfuse-db:
+    image: postgres:16-alpine
+    profiles: ["observability"]
+    environment:
+      POSTGRES_DB: langfuse
+      POSTGRES_USER: langfuse
+      POSTGRES_PASSWORD: ${LANGFUSE_DB_PASSWORD:-change-me-for-local-development}
+    volumes:
+      - langfuse_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U langfuse -d langfuse"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+  langfuse:
+    # Self-hosted LLM observability (ARCHITECTURE.md §11). Optional: only
+    # started with `docker compose --profile observability up`.
+    image: langfuse/langfuse:2
+    profiles: ["observability"]
+    environment:
+      DATABASE_URL: postgresql://langfuse:${LANGFUSE_DB_PASSWORD:-change-me-for-local-development}@langfuse-db:5432/langfuse
+      NEXTAUTH_URL: http://localhost:${LANGFUSE_PORT:-3001}
+      NEXTAUTH_SECRET: ${LANGFUSE_NEXTAUTH_SECRET:-change-me-for-local-development}
+      SALT: ${LANGFUSE_SALT:-change-me-for-local-development}
+      ENCRYPTION_KEY: ${LANGFUSE_ENCRYPTION_KEY:-change-me-32-byte-hex-for-local-development}
+    ports:
+      - "${LANGFUSE_PORT:-3001}:3000"
+    depends_on:
+      langfuse-db:
+        condition: service_healthy
+    restart: unless-stopped
 volumes:
   postgres_data:
   ollama_data:
   qdrant_data:
+  langfuse_db_data:

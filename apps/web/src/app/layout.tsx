@@ -1,4 +1,9 @@
 import type { Metadata } from "next";
+
+import { AppShell } from "@/components/layout/app-shell";
+import { IdentityProvider } from "@/features/identity/identity-context";
+import { WorkspaceProvider } from "@/features/workspace/workspace-context";
+
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -9,7 +14,13 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <IdentityProvider>
+          <WorkspaceProvider>
+            <AppShell>{children}</AppShell>
+          </WorkspaceProvider>
+        </IdentityProvider>
+      </body>
     </html>
   );
 }

@@ -1,14 +1,52 @@
+"""End-to-end and orchestrator-level tests for the LangGraph runtime.
+
+Uses FakeLLMProvider/FakeEmbeddingProvider throughout (AGENTS.md: no CI test
+may require a downloaded model or a live network call).
+"""
+
 from pathlib import Path
+from typing import Any
+from uuid import UUID
+
+from pydantic import BaseModel
 
 from app.agents.orchestrator import OrchestratorAgent
-from app.agents.verification import VerificationAgent
 from app.events.audit import AuditSink
-from app.schemas.agents import AgentRole, Evidence, Finding, Mission
-from app.tools.data_analysis import PandasSalesAnalysisTool
+from app.llm.fake import FakeLLMProvider
+from app.retrieval.embeddings import FakeEmbeddingProvider
+from app.schemas.agents import AgentRole, Mission
+from app.schemas.planning import DraftPlan, DraftTask
+from app.tools.tabular_analysis import GenericTabularAnalysisTool
 from app.workflows.runtime import AegisRuntime
 
 DATA_ROOT = Path(__file__).parents[3] / "data" / "demo"
 DATASET = str(DATA_ROOT / "sales_data.csv")
+
+
+def _approve_and_resume(runtime: AegisRuntime, state: dict[str, Any]) -> dict[str, Any]:
+    """Every run now pauses at await_approval before any task executes
+    (ARCHITECTURE.md section 2/7) -- approve it once to let a happy-path test
+    proceed to completion."""
+
+    assert state["status"] == "awaiting_approval"
+    execution_id = UUID(state["execution_id"])
+    runtime.approve_plan(execution_id)
+    return runtime.resume(execution_id)
+
+
+def _draft_plan(*agents: str) -> DraftPlan:
+    return DraftPlan(
+        rationale="Test plan",
+        tasks=[DraftTask(agent=agent, description=f"{agent} task") for agent in agents],  # type: ignore[arg-type]
+    )
+
+
+def _llm_factory(response_model: type[BaseModel], system: str, prompt: str) -> BaseModel:
+    if response_model is DraftPlan:
+        return _draft_plan("analyst")
+    if response_model.__name__ == "_Critique":
+        return response_model()
+    raise AssertionError(f"Unexpected response_model requested: {response_model}")
 
 
 def test_plan_creation_and_task_routing() -> None:
@@ -16,57 +54,72 @@ def test_plan_creation_and_task_routing() -> None:
         objective="Analyze sales performance and produce an executive summary.",
         context={"dataset_path": DATASET},
     )
-    plan = OrchestratorAgent(AuditSink()).invoke(mission, run_id=mission.mission_id)
+    llm = FakeLLMProvider(responses=[_draft_plan("research", "analyst")])
+    plan = OrchestratorAgent(llm, AuditSink()).invoke(mission, run_id=mission.mission_id)
 
     roles = [task.agent for task in plan.tasks]
     assert roles == [
         AgentRole.RESEARCH,
-        AgentRole.DATA_ANALYST,
-        AgentRole.VERIFICATION,
+        AgentRole.ANALYST,
+        AgentRole.QA,
+        AgentRole.COMPLIANCE,
         AgentRole.REPORT,
     ]
     assert plan.tasks[2].dependencies == [plan.tasks[0].task_id, plan.tasks[1].task_id]
     assert plan.tasks[3].dependencies == [plan.tasks[2].task_id]
+    assert plan.tasks[4].dependencies == [plan.tasks[3].task_id]
 
 
-def test_runtime_transitions_to_verified_report() -> None:
-    source = Evidence(
-        source="https://example.test/approved-brief",
-        source_type="url",
-        locator="/approved-brief",
-        excerpt="Approved context for the sales mission.",
+def test_orchestrator_deduplicates_repeated_agent_choices() -> None:
+    mission = Mission(objective="Repeat test", context={"dataset_path": DATASET})
+    llm = FakeLLMProvider(
+        responses=[
+            DraftPlan(
+                rationale="dup",
+                tasks=[
+                    DraftTask(agent="analyst", description="first"),  # type: ignore[arg-type]
+                    DraftTask(agent="analyst", description="second"),  # type: ignore[arg-type]
+                ],
+            )
+        ]
     )
+    plan = OrchestratorAgent(llm, AuditSink()).invoke(mission, run_id=mission.mission_id)
+    gathering = [task for task in plan.tasks if task.agent == AgentRole.ANALYST]
+    assert len(gathering) == 1
+
+
+def test_runtime_transitions_to_delivered_report() -> None:
     mission = Mission(
         objective="Analyze sales performance and produce an executive summary.",
         context={"dataset_path": DATASET},
     )
-    runtime = AegisRuntime(DATA_ROOT, research_sources=[source])
+    runtime = AegisRuntime(
+        DATA_ROOT,
+        llm=FakeLLMProvider(factory=_llm_factory),
+        embeddings=FakeEmbeddingProvider(),
+    )
     state = runtime.run(mission)
+    state = _approve_and_resume(runtime, state)
 
     assert state["status"] == "completed"
-    assert state["verification"].status == "PASS"
-    assert state["final_report"].verification_status == "PASS"
-    assert {event.actor for event in state["audit_events"]} >= {
+    assert state["approval"] is not None
+    assert state["approval"]["status"] == "approved"
+    assert state["qa_result"] is not None
+    assert state["qa_result"]["status"] == "PASS"
+    assert state["compliance_result"] is not None
+    assert state["compliance_result"]["verdict"] == "pass"
+    final_report = state["final_report"]
+    assert final_report is not None
+    assert final_report["qa_status"] == "PASS"
+    assert final_report["compliance_verdict"] == "pass"
+    assert final_report["slide_deck"] is not None
+    assert {event.actor for event in runtime.audit.events} >= {
         "orchestrator",
-        "research",
-        "data_analyst",
-        "verification",
+        "analyst",
+        "qa",
+        "compliance",
         "report",
     }
-
-
-def test_verification_rejects_unsupported_claims() -> None:
-    mission = Mission(objective="Verify a claim")
-    finding = Finding(statement="Unsupported claim", category="fact", confidence=0.5)
-    result = VerificationAgent(AuditSink()).invoke(
-        mission,
-        run_id=mission.mission_id,
-        context={"findings": [finding.model_dump(mode="json")]},
-    )
-
-    assert result.status == "FAIL"
-    assert result.unsupported_claims == ["Unsupported claim"]
-    assert result.corrections
 
 
 def test_failure_is_retried_then_recorded() -> None:
@@ -74,19 +127,25 @@ def test_failure_is_retried_then_recorded() -> None:
         objective="Analyze a missing dataset.",
         context={"dataset_path": str(DATA_ROOT / "missing.csv")},
     )
-    runtime = AegisRuntime(DATA_ROOT, max_retries=1)
+    runtime = AegisRuntime(
+        DATA_ROOT,
+        max_retries=1,
+        llm=FakeLLMProvider(factory=_llm_factory),
+        embeddings=FakeEmbeddingProvider(),
+    )
     state = runtime.run(mission)
+    state = _approve_and_resume(runtime, state)
 
     assert state["status"] == "failed"
-    assert state["errors"]
+    assert state["last_error"]
+    assert state["task_errors"]
     assert any(
-        event.status == "failed" and event.actor == "data_analyst"
-        for event in state["audit_events"]
+        event.status == "failed" and event.actor == "analyst" for event in runtime.audit.events
     )
 
 
 def test_data_tool_rejects_paths_outside_allowed_root() -> None:
-    tool = PandasSalesAnalysisTool(DATA_ROOT)
+    tool = GenericTabularAnalysisTool(DATA_ROOT)
     try:
         tool.analyze(str(DATA_ROOT.parent / "sales_data.csv"))
     except ValueError as exc:

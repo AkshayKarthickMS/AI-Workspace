@@ -27,6 +27,10 @@ htmlcov/
 # Local service data
 .docker-data/
 data/demo/*.duckdb
+data/runtime-checkpoints.sqlite*
+apps/api/*.db
+apps/api/*.db-wal
+apps/api/*.db-shm
 
 # Editor and OS files
 .DS_Store

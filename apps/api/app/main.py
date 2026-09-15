@@ -10,6 +10,7 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.api.health import router as health_router
+from app.api.v1 import router as api_v1_router
 from app.core.config import get_settings
 from app.core.logging import configure_logging
 
@@ -23,10 +24,16 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origin_list,
     allow_credentials=False,
-    allow_methods=["GET"],
-    allow_headers=["Content-Type", "X-Request-ID"],
+    allow_methods=["GET", "POST", "PATCH", "DELETE"],
+    allow_headers=[
+        "Content-Type",
+        "X-Request-ID",
+        "X-Aegis-Identity-Subject",
+        "X-Aegis-Display-Name",
+    ],
 )
 app.include_router(health_router)
+app.include_router(api_v1_router)
 
 
 @app.middleware("http")

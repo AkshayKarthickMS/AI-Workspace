@@ -7,7 +7,8 @@
     "dev": "npm run dev --workspace=@aegisos/web",
     "build": "npm run build --workspace=@aegisos/web",
     "lint": "npm run lint --workspace=@aegisos/web",
-    "typecheck": "npm run typecheck --workspace=@aegisos/web"
+    "typecheck": "npm run typecheck --workspace=@aegisos/web",
+    "generate:api-types": "npm run generate --workspace=@aegisos/shared"
   },
   "engines": { "node": ">=20.9.0", "npm": ">=10" }
 }

@@ -3,5 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "types": "./src/index.ts",
-  "exports": { ".": "./src/index.ts" }
+  "exports": { ".": "./src/index.ts" },
+  "scripts": {
+    "generate": "openapi-typescript ./openapi.json -o ./src/api-types.ts"
+  },
+  "devDependencies": {
+    "openapi-typescript": "^7.4.1"
+  }
 }

@@ -11,18 +11,35 @@ requires-python = ">=3.12"
 dependencies = [
   "fastapi>=0.115,<1.0",
   "langgraph>=0.2,<1.0",
+  "langgraph-checkpoint-sqlite>=3.0,<4.0",
   "pandas>=2.2,<3.0",
   "pydantic-settings>=2.6,<3.0",
-  "uvicorn[standard]>=0.30,<1.0"
+  "uvicorn[standard]>=0.30,<1.0",
+  "sqlalchemy>=2.0,<3.0",
+  "psycopg[binary]>=3.2,<4.0",
+  "alembic>=1.13,<2.0",
+  "redis>=5.0,<6.0",
+  "pgvector>=0.3,<1.0",
+  "llama-index-core>=0.11,<1.0",
+  "langchain-core>=0.3,<1.0",
+  "langfuse>=2.53,<3.0",
+  "sqlparse>=0.5,<1.0",
+  "docker>=7.1,<8.0",
+  "httpx>=0.27,<1.0"
 ]
 
 [project.optional-dependencies]
 dev = [
-  "httpx>=0.27,<1.0",
   "pytest>=8.3,<9.0",
   "ruff>=0.8,<1.0",
   "mypy>=1.13,<2.0",
-  "pandas-stubs>=2.2,<3.0"
+  "pandas-stubs>=2.2,<3.0",
+  "types-docker>=7.1,<8.0"
+]
+# Scoped to a single Analyst-agent sub-task loop only (see AGENTS.md); never a
+# cross-node orchestrator. Install with `pip install -e ".[crew]"` when used.
+crew = [
+  "crewai>=0.80,<1.0"
 ]
 
 [tool.setuptools.packages.find]
@@ -36,11 +53,47 @@ addopts = "-q"
 [tool.ruff]
 line-length = 100
 target-version = "py312"
+# Alembic-generated migration bodies are diffed against what the tool itself
+# produces; reformatting them to satisfy lint rules defeats that. env.py and
+# script.py.mako are hand-written and stay linted normally.
+extend-exclude = ["alembic/versions"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP"]
+
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI's dependency-injection pattern requires calling Depends()/Header()/
+# Query() in argument defaults -- that's how the framework recognizes them,
+# not a mutable-default bug. require_workspace_role is our own "dependency
+# with parameters" factory (FastAPI's documented pattern for a
+# parameterized dependency) called the same way.
+extend-immutable-calls = [
+  "fastapi.Depends",
+  "fastapi.Header",
+  "fastapi.Query",
+  "fastapi.Path",
+  "app.api.deps.require_workspace_role",
+]
 
 [tool.mypy]
 python_version = "3.12"
 strict = true
 files = ["app"]
+
+[[tool.mypy.overrides]]
+# sqlparse ships no type information and has no stub package on PyPI; this is
+# the only module that touches its untyped API.
+module = "app.tools.sql_safety"
+disallow_untyped_calls = false
+
+[[tool.mypy.overrides]]
+# langfuse ships no py.typed marker and has no stub package on PyPI.
+module = "langfuse"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# redis.asyncio's stubs are incomplete for from_url(); this is the only
+# module that touches the async client (the sync client, used elsewhere, is
+# fully typed).
+module = "app.api.v1.runs"
+disallow_untyped_calls = false
