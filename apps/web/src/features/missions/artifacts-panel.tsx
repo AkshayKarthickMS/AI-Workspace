@@ -25,20 +25,20 @@ interface ReportContent {
 
 function ReportViewer({ report }: { report: ReportContent }) {
   return (
-    <div className="mt-4 space-y-4 border-t border-slate-800 pt-4">
+    <div className="mt-4 space-y-4 border-t border-line pt-4">
       <div className="flex flex-wrap items-center gap-2">
         {report.qa_status ? <StatusBadge status={report.qa_status} /> : null}
         {report.compliance_verdict ? <StatusBadge status={report.compliance_verdict} /> : null}
       </div>
       {report.executive_summary ? (
-        <p className="text-sm text-slate-300">{report.executive_summary}</p>
+        <p className="text-sm text-ink">{report.executive_summary}</p>
       ) : null}
       {report.recommendations && report.recommendations.length > 0 ? (
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <p className="text-xs font-semibold uppercase tracking-wide text-ink-faint">
             Recommendations
           </p>
-          <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-slate-300">
+          <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-ink">
             {report.recommendations.map((item, index) => (
               <li key={index}>{item}</li>
             ))}
@@ -47,17 +47,14 @@ function ReportViewer({ report }: { report: ReportContent }) {
       ) : null}
       {report.slide_deck?.slides && report.slide_deck.slides.length > 0 ? (
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <p className="text-xs font-semibold uppercase tracking-wide text-ink-faint">
             {report.slide_deck.title ?? "Slide deck"}
           </p>
           <div className="mt-2 grid gap-3 sm:grid-cols-2">
             {report.slide_deck.slides.map((slide, index) => (
-              <div
-                key={index}
-                className="rounded-lg border border-slate-700 bg-slate-800/40 p-3"
-              >
-                <p className="text-sm font-medium text-white">{slide.title}</p>
-                <ul className="mt-1.5 list-disc space-y-1 pl-4 text-xs text-slate-400">
+              <div key={index} className="rounded-md border border-line bg-paper p-3">
+                <p className="text-sm font-medium text-ink">{slide.title}</p>
+                <ul className="mt-1.5 list-disc space-y-1 pl-4 text-xs text-ink-muted">
                   {slide.bullets.map((bullet, bulletIndex) => (
                     <li key={bulletIndex}>{bullet}</li>
                   ))}
@@ -97,11 +94,11 @@ function ArtifactRow({ workspaceId, artifact }: { workspaceId: string; artifact:
   };
 
   return (
-    <div className="rounded-lg border border-slate-700 bg-slate-800/30 p-4">
+    <div className="rounded-md border border-line bg-white p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <Badge tone="info">{artifact.artifact_type}</Badge>
-          <span className="text-xs text-slate-500">
+          <span className="text-xs text-ink-faint">
             {new Date(artifact.created_at).toLocaleString()}
           </span>
         </div>

@@ -104,11 +104,11 @@ export function KnowledgeBase({ workspaceId }: { workspaceId: string }) {
           {documents?.map((doc) => (
             <div
               key={doc.id}
-              className="flex items-center justify-between gap-3 rounded-lg border border-slate-700 bg-slate-800/30 px-3 py-2"
+              className="flex items-center justify-between gap-3 rounded-md border border-line bg-white px-3 py-2"
             >
               <div className="min-w-0">
-                <p className="truncate text-sm text-slate-200">{doc.source_uri}</p>
-                <p className="text-xs text-slate-500">
+                <p className="truncate text-sm text-ink">{doc.source_uri}</p>
+                <p className="text-xs text-ink-faint">
                   {new Date(doc.created_at).toLocaleString()}
                 </p>
               </div>

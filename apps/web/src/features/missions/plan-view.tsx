@@ -43,14 +43,14 @@ export function PlanView({ plan, tasks: liveTasks }: PlanViewProps) {
             {tasks.map((task, index) => (
               <li
                 key={task.task_id ?? index}
-                className="rounded-lg border border-slate-700 bg-slate-800/40 p-3"
+                className="rounded-md border border-line bg-paper p-3"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-cyan-300">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-ink-muted">
                       {index + 1}. {task.agent ?? "agent"}
                     </p>
-                    <p className="mt-1 text-sm text-slate-200">{task.description ?? ""}</p>
+                    <p className="mt-1 text-sm text-ink">{task.description ?? ""}</p>
                   </div>
                   {task.status ? <StatusBadge status={task.status} /> : null}
                 </div>

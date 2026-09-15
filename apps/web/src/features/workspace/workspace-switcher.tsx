@@ -14,7 +14,7 @@ export function WorkspaceSwitcher() {
     <select
       value={currentWorkspaceId ?? ""}
       onChange={(event) => selectWorkspace(event.target.value)}
-      className="rounded-lg border border-slate-700 bg-slate-800/60 px-3 py-1.5 text-xs text-slate-200 focus:border-cyan-400 focus:outline-none"
+      className="w-full rounded-md border border-line bg-white px-3 py-1.5 text-xs text-ink focus:border-ink-muted focus:outline-none"
     >
       {workspaces.map((workspace) => (
         <option key={workspace.id} value={workspace.id}>

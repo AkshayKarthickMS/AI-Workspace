@@ -5,11 +5,11 @@ import { cn } from "@/lib/utils";
 type Tone = "neutral" | "info" | "success" | "warning" | "danger";
 
 const toneClasses: Record<Tone, string> = {
-  neutral: "border-slate-600 bg-slate-800 text-slate-200",
-  info: "border-cyan-400/30 bg-cyan-400/10 text-cyan-100",
-  success: "border-emerald-400/30 bg-emerald-400/10 text-emerald-100",
-  warning: "border-amber-400/30 bg-amber-400/10 text-amber-100",
-  danger: "border-rose-400/30 bg-rose-400/10 text-rose-100",
+  neutral: "border-line bg-paper text-ink-muted",
+  info: "border-blue-200 bg-blue-50 text-blue-800",
+  success: "border-emerald-200 bg-emerald-50 text-emerald-800",
+  warning: "border-amber-200 bg-amber-50 text-amber-800",
+  danger: "border-red-200 bg-red-50 text-red-800",
 };
 
 const STATUS_TONE: Record<string, Tone> = {
@@ -45,7 +45,7 @@ export function Badge({ className, tone = "neutral", ...props }: BadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium capitalize",
+        "inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium capitalize",
         toneClasses[tone],
         className ?? null,
       )}

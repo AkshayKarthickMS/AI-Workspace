@@ -79,15 +79,15 @@ export function AuditExplorer({ workspaceId }: { workspaceId: string }) {
         {events?.map((event) => (
           <div
             key={event.id}
-            className="rounded-lg border border-slate-700 bg-slate-800/30 px-3 py-2 text-sm"
+            className="rounded-md border border-line bg-white px-3 py-2 text-sm"
           >
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="font-mono text-xs text-cyan-300">{event.event_type}</span>
-              <span className="text-xs text-slate-500">
+              <span className="font-mono text-xs text-ink">{event.event_type}</span>
+              <span className="text-xs text-ink-faint">
                 {new Date(event.occurred_at).toLocaleString()}
               </span>
             </div>
-            <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-400">
+            <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-ink-muted">
               <Badge tone="neutral">{event.actor}</Badge>
               <span>run {event.run_id.slice(0, 8)}</span>
               <span>{event.status}</span>

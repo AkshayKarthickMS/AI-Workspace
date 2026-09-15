@@ -3,7 +3,7 @@ import type { InputHTMLAttributes, LabelHTMLAttributes, TextareaHTMLAttributes }
 import { cn } from "@/lib/utils";
 
 const fieldClasses =
-  "w-full rounded-lg border border-slate-600 bg-slate-800/80 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none focus:ring-1 focus:ring-cyan-400";
+  "w-full rounded-md border border-line bg-white px-3 py-2 text-sm text-ink placeholder:text-ink-faint focus:border-ink-muted focus:outline-none focus:ring-1 focus:ring-ink-muted";
 
 export function Input({ className, ...props }: InputHTMLAttributes<HTMLInputElement>) {
   return <input className={cn(fieldClasses, className ?? null)} {...props} />;
@@ -16,7 +16,10 @@ export function Textarea({ className, ...props }: TextareaHTMLAttributes<HTMLTex
 export function Label({ className, ...props }: LabelHTMLAttributes<HTMLLabelElement>) {
   return (
     <label
-      className={cn("mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-400", className ?? null)}
+      className={cn(
+        "mb-1.5 block text-xs font-medium uppercase tracking-wide text-ink-muted",
+        className ?? null,
+      )}
       {...props}
     />
   );

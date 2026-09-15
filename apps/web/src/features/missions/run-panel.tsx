@@ -31,8 +31,8 @@ function ResultSummary({
         ? result.verdict
         : null;
   return (
-    <div className="flex items-center gap-2 text-sm text-slate-300">
-      <span className="text-slate-400">{label}</span>
+    <div className="flex items-center gap-2 text-sm text-ink">
+      <span className="text-ink-muted">{label}</span>
       {status ? <StatusBadge status={status} /> : <Badge tone="neutral">recorded</Badge>}
     </div>
   );

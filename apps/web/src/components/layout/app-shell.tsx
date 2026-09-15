@@ -11,51 +11,73 @@ import { cn } from "@/lib/utils";
 import { DemoBanner } from "./demo-banner";
 
 const NAV_LINKS = [
-  { href: "/", label: "Missions" },
-  { href: "/knowledge", label: "Knowledge" },
-  { href: "/audit", label: "Audit" },
+  { href: "/app", label: "Missions" },
+  { href: "/app/knowledge", label: "Knowledge" },
+  { href: "/app/audit", label: "Audit" },
 ];
+
+function NavLinks({ pathname, className }: { pathname: string; className?: string }) {
+  return (
+    <>
+      {NAV_LINKS.map((link) => {
+        const active = link.href === "/app" ? pathname === "/app" : pathname.startsWith(link.href);
+        return (
+          <Link
+            key={link.href}
+            href={link.href}
+            className={cn(
+              "rounded-md px-3 py-2 text-sm font-medium transition-colors",
+              active ? "bg-paper text-ink" : "text-ink-muted hover:bg-paper hover:text-ink",
+              className,
+            )}
+          >
+            {link.label}
+          </Link>
+        );
+      })}
+    </>
+  );
+}
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-paper">
       <DemoBanner />
-      <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-4 sm:px-10">
-          <div className="flex items-center gap-8">
-            <Link href="/" className="text-sm font-semibold uppercase tracking-[0.24em] text-cyan-300">
-              AegisOS
-            </Link>
-            <nav className="flex items-center gap-1">
-              {NAV_LINKS.map((link) => {
-                const active =
-                  link.href === "/" ? pathname === "/" : pathname.startsWith(link.href);
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className={cn(
-                      "rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
-                      active
-                        ? "bg-slate-800 text-white"
-                        : "text-slate-400 hover:bg-slate-800/60 hover:text-slate-200",
-                    )}
-                  >
-                    {link.label}
-                  </Link>
-                );
-              })}
-            </nav>
-          </div>
-          <div className="flex items-center gap-3">
+      <div className="mx-auto flex min-h-[calc(100vh-2rem)] max-w-[1400px]">
+        <aside className="hidden w-56 shrink-0 flex-col border-r border-line bg-white md:flex">
+          <Link
+            href="/"
+            className="border-b border-line px-6 py-5 text-sm font-bold tracking-tight text-ink"
+          >
+            AEGISOS
+          </Link>
+          <nav className="flex flex-1 flex-col gap-0.5 px-3 py-4">
+            <NavLinks pathname={pathname} />
+          </nav>
+          <div className="space-y-2 border-t border-line px-3 py-4">
             <WorkspaceSwitcher />
             <IdentityBadge />
           </div>
+        </aside>
+
+        <div className="min-w-0 flex-1">
+          <header className="flex flex-col gap-3 border-b border-line bg-white px-6 py-3 md:hidden">
+            <div className="flex items-center justify-between">
+              <Link href="/" className="text-sm font-bold tracking-tight text-ink">
+                AEGISOS
+              </Link>
+              <IdentityBadge />
+            </div>
+            <div className="flex items-center gap-1 overflow-x-auto">
+              <NavLinks pathname={pathname} />
+            </div>
+            <WorkspaceSwitcher />
+          </header>
+          <main className="mx-auto max-w-5xl px-6 py-10 sm:px-10">{children}</main>
         </div>
-      </header>
-      <main className="mx-auto max-w-6xl px-6 py-10 sm:px-10">{children}</main>
+      </div>
     </div>
   );
 }

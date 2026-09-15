@@ -93,7 +93,7 @@ git push -u origin feature/fresh-requirements
 
 ## 6. Verify the golden path
 
-Visit your Vercel URL and walk through: set an identity → create a workspace → create a mission (try the demo dataset path `data/demo/sales_data.csv`) → start a run → approve the plan → wait for it to reach "Completed" → view the report artifact → try the knowledge base and audit explorer.
+Visit your Vercel URL (the public marketing/pricing pages live at `/` and `/pricing`; the product itself is under `/app`) and walk through: open the app → set an identity → create a workspace → create a mission (upload your own CSV/Excel, or try the demo dataset path `data/demo/sales_data.csv`) → start a run → approve the plan → wait for it to reach "Completed" → view the report artifact → try the knowledge base and audit explorer.
 
 The first request after any idle period will be slow (Render's free-tier cold start, ~30-60s) — that's expected, not a bug.
 

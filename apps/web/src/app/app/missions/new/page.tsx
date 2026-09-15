@@ -57,7 +57,7 @@ export default function NewMissionPage() {
               success_criteria: linesToList(successCriteria),
               context: datasetPath.trim() ? { dataset_path: datasetPath.trim() } : {},
             });
-            router.push(`/missions/${mission.id}`);
+            router.push(`/app/missions/${mission.id}`);
           } catch (err) {
             setError(err instanceof Error ? err.message : "Failed to create mission");
             setSubmitting(false);
@@ -115,7 +115,7 @@ export default function NewMissionPage() {
             type="file"
             accept=".csv,.xlsx"
             disabled={uploading}
-            className="file:mr-3 file:rounded-md file:border-0 file:bg-cyan-500 file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-slate-950"
+            className="file:mr-3 file:rounded-md file:border-0 file:bg-accent file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-white"
             onChange={async (event) => {
               const file = event.target.files?.[0];
               event.target.value = "";
@@ -133,7 +133,7 @@ export default function NewMissionPage() {
               }
             }}
           />
-          <p className="mt-1.5 text-xs text-slate-500">
+          <p className="mt-1.5 text-xs text-ink-faint">
             {uploading
               ? "Uploading..."
               : uploadedFileName
@@ -160,7 +160,7 @@ export default function NewMissionPage() {
           >
             {submitting ? "Creating..." : "Create mission"}
           </Button>
-          <Button type="button" variant="secondary" onClick={() => router.push("/")}>
+          <Button type="button" variant="secondary" onClick={() => router.push("/app")}>
             Cancel
           </Button>
         </div>

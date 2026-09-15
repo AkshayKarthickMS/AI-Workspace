@@ -17,7 +17,7 @@ export function IdentityBadge() {
   if (editing) {
     return (
       <form
-        className="flex items-center gap-2"
+        className="flex flex-col gap-2"
         onSubmit={(event) => {
           event.preventDefault();
           if (!subjectDraft.trim()) return;
@@ -30,25 +30,27 @@ export function IdentityBadge() {
           placeholder="you@example.com"
           value={subjectDraft}
           onChange={(event) => setSubjectDraft(event.target.value)}
-          className="w-44"
+          className="text-xs"
         />
         <Input
           placeholder="Display name (optional)"
           value={nameDraft}
           onChange={(event) => setNameDraft(event.target.value)}
-          className="w-40"
+          className="text-xs"
         />
-        <Button type="submit" variant="primary" className="px-3 py-1.5 text-xs">
-          Save
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          className="px-3 py-1.5 text-xs"
-          onClick={() => setEditing(false)}
-        >
-          Cancel
-        </Button>
+        <div className="flex gap-2">
+          <Button type="submit" variant="primary" className="flex-1 px-3 py-1.5 text-xs">
+            Save
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            className="px-3 py-1.5 text-xs"
+            onClick={() => setEditing(false)}
+          >
+            Cancel
+          </Button>
+        </div>
       </form>
     );
   }
@@ -61,7 +63,7 @@ export function IdentityBadge() {
         setNameDraft(displayName ?? "");
         setEditing(true);
       }}
-      className="rounded-lg border border-slate-700 bg-slate-800/60 px-3 py-1.5 text-xs text-slate-200 hover:border-cyan-400/50"
+      className="max-w-full truncate rounded-md border border-line bg-white px-3 py-1.5 text-left text-xs text-ink hover:border-ink-faint"
       title="Local development identity -- not real authentication"
     >
       {identitySubject ? (displayName ?? identitySubject) : "Set identity"}

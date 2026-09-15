@@ -5,19 +5,18 @@ import { cn } from "@/lib/utils";
 export function Card({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn(
-        "rounded-2xl border border-slate-700 bg-slate-900/70 p-6 shadow-2xl shadow-slate-950/30",
-        className ?? null,
-      )}
+      className={cn("rounded-lg border border-line bg-white p-6 shadow-card", className ?? null)}
       {...props}
     />
   );
 }
 
 export function CardHeading({ className, ...props }: HTMLAttributes<HTMLHeadingElement>) {
-  return <h2 className={cn("text-xl font-semibold text-white", className ?? null)} {...props} />;
+  return (
+    <h2 className={cn("text-base font-semibold text-ink", className ?? null)} {...props} />
+  );
 }
 
 export function CardSubtext({ className, ...props }: HTMLAttributes<HTMLParagraphElement>) {
-  return <p className={cn("mt-2 text-sm text-slate-400", className ?? null)} {...props} />;
+  return <p className={cn("mt-1.5 text-sm text-ink-muted", className ?? null)} {...props} />;
 }

@@ -87,13 +87,13 @@ export function RunHistory({
             type="button"
             onClick={() => onSelectRun(run.id)}
             className={cn(
-              "flex w-full items-center justify-between gap-3 rounded-lg border px-3 py-2 text-left text-sm transition-colors",
+              "flex w-full items-center justify-between gap-3 rounded-md border px-3 py-2 text-left text-sm transition-colors",
               run.id === selectedRunId
-                ? "border-cyan-400/50 bg-cyan-400/10"
-                : "border-slate-700 bg-slate-800/30 hover:border-slate-600",
+                ? "border-accent bg-paper"
+                : "border-line bg-white hover:border-ink-faint",
             )}
           >
-            <span className="text-slate-300">{new Date(run.created_at).toLocaleString()}</span>
+            <span className="text-ink">{new Date(run.created_at).toLocaleString()}</span>
             <StatusBadge status={run.status} />
           </button>
         ))}

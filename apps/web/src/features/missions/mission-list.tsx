@@ -33,8 +33,8 @@ export function MissionList({ workspaceId }: { workspaceId: string }) {
   return (
     <div>
       <div className="mb-5 flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-white">Missions</h2>
-        <Link href="/missions/new">
+        <h2 className="text-lg font-semibold text-ink">Missions</h2>
+        <Link href="/app/missions/new">
           <Button>New mission</Button>
         </Link>
       </div>
@@ -47,12 +47,12 @@ export function MissionList({ workspaceId }: { workspaceId: string }) {
         <ul className="space-y-3">
           {missions.map((mission) => (
             <li key={mission.id}>
-              <Link href={`/missions/${mission.id}`}>
-                <Card className="transition-colors hover:border-cyan-400/40">
+              <Link href={`/app/missions/${mission.id}`}>
+                <Card className="transition-colors hover:border-ink-faint">
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0">
-                      <p className="truncate font-medium text-white">{mission.title}</p>
-                      <p className="mt-1 truncate text-sm text-slate-400">{mission.raw_request}</p>
+                      <p className="truncate font-medium text-ink">{mission.title}</p>
+                      <p className="mt-1 truncate text-sm text-ink-muted">{mission.raw_request}</p>
                     </div>
                     <StatusBadge status={mission.status} />
                   </div>

@@ -27,10 +27,10 @@ export function HealthStatus() {
   }, []);
 
   const tone = {
-    checking: "border-amber-400/30 bg-amber-400/10 text-amber-100",
-    connected: "border-emerald-400/30 bg-emerald-400/10 text-emerald-100",
-    unavailable: "border-rose-400/30 bg-rose-400/10 text-rose-100",
+    checking: "border-amber-200 bg-amber-50 text-amber-900",
+    connected: "border-emerald-200 bg-emerald-50 text-emerald-900",
+    unavailable: "border-red-200 bg-red-50 text-red-900",
   }[state];
 
-  return <p className={`rounded-lg border px-4 py-3 text-sm ${tone}`}>{detail}</p>;
+  return <p className={`rounded-md border px-4 py-3 text-sm ${tone}`}>{detail}</p>;
 }

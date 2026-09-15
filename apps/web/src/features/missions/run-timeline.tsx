@@ -84,17 +84,17 @@ export function RunTimeline({
             .map((entry) => (
               <div
                 key={entry.id}
-                className="rounded-lg border border-slate-700 bg-slate-800/40 px-3 py-2 text-sm"
+                className="rounded-md border border-line bg-paper px-3 py-2 text-sm"
               >
                 <div className="flex items-center justify-between gap-3">
-                  <span className="font-mono text-xs text-cyan-300">{entry.eventType}</span>
+                  <span className="font-mono text-xs text-ink">{entry.eventType}</span>
                   {entry.occurredAt ? (
-                    <span className="text-xs text-slate-500">
+                    <span className="text-xs text-ink-faint">
                       {new Date(entry.occurredAt).toLocaleTimeString()}
                     </span>
                   ) : null}
                 </div>
-                {entry.status ? <p className="mt-1 text-xs text-slate-400">{entry.status}</p> : null}
+                {entry.status ? <p className="mt-1 text-xs text-ink-muted">{entry.status}</p> : null}
               </div>
             ))
         )}

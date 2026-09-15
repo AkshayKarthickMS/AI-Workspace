@@ -62,7 +62,7 @@ export function ApprovalPanel({
   };
 
   return (
-    <Card className="border-amber-400/40">
+    <Card className="border-amber-300">
       <div className="flex items-center gap-3">
         <CardHeading>{isEscalation ? "Compliance escalation" : "Plan approval required"}</CardHeading>
         <Badge tone="warning">action needed</Badge>
@@ -72,9 +72,9 @@ export function ApprovalPanel({
           ? "Compliance flagged this run mid-execution. Review the violations before deciding whether to continue."
           : "Review the drafted plan above and approve it to begin execution, or reject it to stop the run."}
       </CardSubtext>
-      {gateReason ? <p className="mt-3 text-sm text-slate-300">{gateReason}</p> : null}
+      {gateReason ? <p className="mt-3 text-sm text-ink">{gateReason}</p> : null}
       {violations.length > 0 ? (
-        <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-rose-200">
+        <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-red-700">
           {violations.map((violation, index) => (
             <li key={index}>{violation}</li>
           ))}
