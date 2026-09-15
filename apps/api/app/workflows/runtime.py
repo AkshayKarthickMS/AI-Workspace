@@ -169,7 +169,7 @@ class AegisRuntime:
         )
         self.qa = QAAgent(self.llm, self.embeddings, self.audit)
         self.compliance = ComplianceAgent(self.audit)
-        self.report = ReportAgent(self.audit)
+        self.report = ReportAgent(self.llm, self.audit)
         self.graph = self._build_graph()
 
     def __enter__(self) -> AegisRuntime:

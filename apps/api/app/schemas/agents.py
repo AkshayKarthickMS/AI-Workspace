@@ -72,7 +72,7 @@ class Evidence(BaseModel):
 class Finding(BaseModel):
     finding_id: UUID = Field(default_factory=uuid4)
     statement: str = Field(min_length=1)
-    category: Literal["fact", "trend", "anomaly", "risk", "recommendation"]
+    category: Literal["fact", "trend", "anomaly", "risk", "recommendation", "driver"]
     confidence: float = Field(ge=0, le=1)
     evidence: list[Evidence] = Field(default_factory=list)
     metrics: dict[str, float | int | str] = Field(default_factory=dict)

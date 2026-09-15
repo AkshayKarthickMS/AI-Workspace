@@ -46,6 +46,10 @@ def _llm_factory(response_model: type[BaseModel], system: str, prompt: str) -> B
         return _draft_plan("analyst")
     if response_model.__name__ == "_Critique":
         return response_model()
+    if response_model.__name__ == "_Narrative":
+        return response_model(
+            executive_summary="Test executive summary.", recommendations=["Test recommendation."]
+        )
     raise AssertionError(f"Unexpected response_model requested: {response_model}")
 
 
@@ -155,6 +159,11 @@ def test_mission_dataset_path_wins_over_llm_hallucinated_task_input() -> None:
             )
         if response_model.__name__ == "_Critique":
             return response_model()
+        if response_model.__name__ == "_Narrative":
+            return response_model(
+                executive_summary="Test executive summary.",
+                recommendations=["Test recommendation."],
+            )
         raise AssertionError(f"Unexpected response_model requested: {response_model}")
 
     runtime = AegisRuntime(

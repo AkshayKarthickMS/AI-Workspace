@@ -49,6 +49,10 @@ def _llm_factory(response_model: type[BaseModel], system: str, prompt: str) -> B
         )
     if response_model.__name__ == "_Critique":
         return response_model()
+    if response_model.__name__ == "_Narrative":
+        return response_model(
+            executive_summary="Test executive summary.", recommendations=["Test recommendation."]
+        )
     raise AssertionError(f"Unexpected response_model: {response_model}")
 
 

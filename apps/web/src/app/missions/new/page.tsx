@@ -8,7 +8,7 @@ import { Card, CardHeading, CardSubtext } from "@/components/ui/card";
 import { Input, Label, Textarea } from "@/components/ui/field";
 import { ErrorState } from "@/components/ui/states";
 import { useWorkspace } from "@/features/workspace/workspace-context";
-import { createMission } from "@/lib/api-client";
+import { createMission, uploadDataset } from "@/lib/api-client";
 
 function linesToList(value: string): string[] {
   return value
@@ -25,6 +25,9 @@ export default function NewMissionPage() {
   const [constraints, setConstraints] = useState("");
   const [successCriteria, setSuccessCriteria] = useState("");
   const [datasetPath, setDatasetPath] = useState("");
+  const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -106,17 +109,55 @@ export default function NewMissionPage() {
           </div>
         </div>
         <div>
-          <Label htmlFor="dataset-path">Dataset path (optional)</Label>
+          <Label htmlFor="dataset-upload">Dataset (optional)</Label>
+          <Input
+            id="dataset-upload"
+            type="file"
+            accept=".csv,.xlsx"
+            disabled={uploading}
+            className="file:mr-3 file:rounded-md file:border-0 file:bg-cyan-500 file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-slate-950"
+            onChange={async (event) => {
+              const file = event.target.files?.[0];
+              event.target.value = "";
+              if (!file) return;
+              setUploading(true);
+              setUploadError(null);
+              try {
+                const result = await uploadDataset(currentWorkspaceId, file);
+                setDatasetPath(result.dataset_path);
+                setUploadedFileName(`${file.name} (${result.rows.toLocaleString()} rows)`);
+              } catch (err) {
+                setUploadError(err instanceof Error ? err.message : "Failed to upload dataset");
+              } finally {
+                setUploading(false);
+              }
+            }}
+          />
+          <p className="mt-1.5 text-xs text-slate-500">
+            {uploading
+              ? "Uploading..."
+              : uploadedFileName
+                ? `Using uploaded file: ${uploadedFileName}`
+                : "Upload your own CSV or Excel file, or enter a server-side path below."}
+          </p>
+          {uploadError ? <ErrorState message={uploadError} /> : null}
           <Input
             id="dataset-path"
+            className="mt-2"
             value={datasetPath}
-            onChange={(event) => setDatasetPath(event.target.value)}
+            onChange={(event) => {
+              setDatasetPath(event.target.value);
+              setUploadedFileName(null);
+            }}
             placeholder="data/demo/sales_data.csv"
           />
         </div>
         {error ? <ErrorState message={error} /> : null}
         <div className="flex gap-3">
-          <Button type="submit" disabled={submitting || !rawRequest.trim() || !objective.trim()}>
+          <Button
+            type="submit"
+            disabled={submitting || uploading || !rawRequest.trim() || !objective.trim()}
+          >
             {submitting ? "Creating..." : "Create mission"}
           </Button>
           <Button type="button" variant="secondary" onClick={() => router.push("/")}>

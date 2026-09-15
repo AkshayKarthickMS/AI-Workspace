@@ -2,6 +2,7 @@ import type {
   ApprovalDecisionRequest,
   ArtifactResponse,
   AuditEventResponse,
+  DatasetUploadResponse,
   HealthResponse,
   KnowledgeDocumentCreateRequest,
   KnowledgeDocumentResponse,
@@ -206,6 +207,45 @@ export async function listAuditEvents(
   return request<AuditEventResponse[]>(
     `/api/v1/workspaces/${workspaceId}/audit-events${query ? `?${query}` : ""}`,
   );
+}
+
+/** Uploads a CSV/Excel file for analysis. Uses a raw `fetch` (not `request`)
+ * because a multipart body needs the browser to set its own `Content-Type`
+ * boundary -- setting it manually, as `request`'s JSON path does, breaks the
+ * upload. */
+export async function uploadDataset(
+  workspaceId: string,
+  file: File,
+): Promise<DatasetUploadResponse> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const headers = authHeaders();
+  headers.set("Accept", "application/json");
+
+  const response = await fetch(`/backend/api/v1/workspaces/${workspaceId}/datasets`, {
+    method: "POST",
+    headers,
+    body: formData,
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    let detail: unknown;
+    try {
+      detail = await response.json();
+    } catch {
+      detail = undefined;
+    }
+    const detailMessage =
+      detail && typeof detail === "object" && "detail" in detail
+        ? (detail as { detail?: unknown }).detail
+        : undefined;
+    const message =
+      typeof detailMessage === "string"
+        ? detailMessage
+        : `Failed to upload dataset (status ${response.status})`;
+    throw new ApiClientError(message, response.status, detail);
+  }
+  return (await response.json()) as DatasetUploadResponse;
 }
 
 export async function listKnowledgeDocuments(

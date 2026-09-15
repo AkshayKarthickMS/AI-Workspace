@@ -27,3 +27,5 @@ export type AuditEventResponse = components["schemas"]["AuditEventResponse"];
 export type KnowledgeDocumentCreateRequest =
   components["schemas"]["KnowledgeDocumentCreateRequest"];
 export type KnowledgeDocumentResponse = components["schemas"]["KnowledgeDocumentResponse"];
+
+export type DatasetUploadResponse = components["schemas"]["DatasetUploadResponse"];
