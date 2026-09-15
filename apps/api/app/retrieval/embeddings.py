@@ -49,12 +49,16 @@ class HuggingFaceEmbeddingProvider(EmbeddingProvider):
     """Calls the free-tier Hugging Face Inference API's feature-extraction
     endpoint for the public demo deployment only (AGENTS.md documents this
     exception; local development and tests use ``OllamaEmbeddingProvider``/
-    ``FakeEmbeddingProvider``). Some models return one pooled vector per
-    input (2D response); others return per-token vectors (3D) that need
-    mean-pooling client-side -- handled below since the Inference API's
-    pooling behavior isn't consistent across all sentence-transformers
-    models. Default model (``sentence-transformers/all-mpnet-base-v2``)
-    produces 768 dimensions, matching ``app.models.knowledge.EMBEDDING_DIMENSIONS``.
+    ``FakeEmbeddingProvider``). Uses the ``router.huggingface.co`` "Inference
+    Providers" endpoint -- the older ``api-inference.huggingface.co`` domain
+    this originally targeted has been retired and no longer resolves at all
+    (confirmed live before shipping this). Some models return one pooled
+    vector per input (2D response); others return per-token vectors (3D)
+    that need mean-pooling client-side -- handled below since pooling
+    behavior isn't consistent across all sentence-transformers models.
+    Default model (``sentence-transformers/all-mpnet-base-v2``) produces 768
+    dimensions, matching ``app.models.knowledge.EMBEDDING_DIMENSIONS``
+    (verified live: a 2-input call returns two flat 768-float vectors).
     """
 
     def __init__(
@@ -62,7 +66,7 @@ class HuggingFaceEmbeddingProvider(EmbeddingProvider):
         *,
         model: str,
         api_key: str,
-        base_url: str = "https://api-inference.huggingface.co/models",
+        base_url: str = "https://router.huggingface.co/hf-inference/models",
         client: httpx.Client | None = None,
         timeout_seconds: float = 30.0,
     ) -> None:
@@ -77,7 +81,7 @@ class HuggingFaceEmbeddingProvider(EmbeddingProvider):
         if not texts:
             return []
         response = self._client.post(
-            f"/{self.model}",
+            f"/{self.model}/pipeline/feature-extraction",
             json={"inputs": texts, "options": {"wait_for_model": True}},
         )
         response.raise_for_status()

@@ -43,7 +43,7 @@ Do these in any order; you'll paste the results into Render in step 3.
 1. Sign up at https://console.groq.com.
 2. Create an API key (Settings → API Keys).
 3. Save it as `AEGIS_HUGGINGFACE_API_KEY` (yes, "huggingface" in the name — that setting is a generic OpenAI-chat-compatible client, not Hugging-Face-specific; see the docstring in `apps/api/app/llm/huggingface.py`).
-4. Check https://console.groq.com/docs/models for the current list of supported models and pick one that supports JSON mode (`response_format: json_object`) — `llama-3.3-70b-versatile` is a good default as of writing, already set in `render.yaml`, but Groq's lineup changes over time, so confirm it's still listed before you deploy.
+4. Check https://console.groq.com/docs/models for the current list of supported models and pick one that (a) supports JSON mode (`response_format: json_object`) and (b) actually lists Developer-plan rate limits rather than "Contact Sales" (several of Groq's Llama models moved to Enterprise-only pricing after this doc was written) — `openai/gpt-oss-120b` is a good free-tier default as of writing, already set in `render.yaml`, but Groq's lineup and pricing tiers change over time, so confirm it's still listed on the free Developer plan before you deploy.
 
 ### Hugging Face (embeddings)
 

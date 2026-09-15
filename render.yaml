@@ -20,7 +20,7 @@ services:
       - key: AEGIS_MODEL_PROVIDER
         value: huggingface
       - key: AEGIS_MODEL_NAME
-        value: llama-3.3-70b-versatile
+        value: openai/gpt-oss-120b
       - key: AEGIS_HUGGINGFACE_ENDPOINT_URL
         value: https://api.groq.com/openai
       - key: AEGIS_EMBEDDING_PROVIDER
