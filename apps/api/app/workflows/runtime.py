@@ -696,8 +696,19 @@ class AegisRuntime:
             context["compliance_result"] = compliance_data
         if role == AgentRole.DATA and not context.get("question"):
             context["question"] = mission.objective
-        if role == AgentRole.ANALYST and not context.get("dataset_path"):
-            context["dataset_path"] = mission.context.get("dataset_path", "")
+        if role == AgentRole.ANALYST:
+            # mission.context["dataset_path"] is the user-staged, known-good
+            # path from mission creation; the LLM-drafted task.input value is
+            # always a guess, since the orchestrator prompt only ever shows
+            # the LLM mission.context's *key names*, never its values (see
+            # OrchestratorAgent._mission_prompt) -- it cannot know the real
+            # path and, empirically (Groq gpt-oss-120b, live), sometimes
+            # hallucinates the literal placeholder text "dataset_path" as the
+            # value. The mission-level path is authoritative whenever it's
+            # set; the task-level guess is only used as a fallback for a
+            # mission that never staged one.
+            mission_dataset_path = mission.context.get("dataset_path", "")
+            context["dataset_path"] = mission_dataset_path or context.get("dataset_path", "")
         return context
 
     def _execute_graph(

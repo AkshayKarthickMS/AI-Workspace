@@ -122,6 +122,53 @@ def test_runtime_transitions_to_delivered_report() -> None:
     }
 
 
+def test_mission_dataset_path_wins_over_llm_hallucinated_task_input() -> None:
+    """Regression test: a live Groq gpt-oss-120b run against the public demo
+    deployment drafted a DraftTask with input={"dataset_path": "dataset_path"}
+    -- the LLM echoed the *parameter name* back as its value, since
+    OrchestratorAgent._mission_prompt only ever shows the LLM mission.context's
+    key names, never its values, so it cannot know the real path and is
+    always guessing for this field. The old `_build_context` used
+    `not context.get("dataset_path")` to decide whether to fall back to
+    mission.context, which is truthy for any non-empty string including this
+    literal placeholder -- so the bogus value reached the Analyst tool
+    unchanged and every real request failed with "Dataset path is outside
+    the allowed data root". The mission-level path (the one the user
+    actually staged via mission creation) must win whenever it's set."""
+
+    mission = Mission(
+        objective="Analyze sales performance and produce an executive summary.",
+        context={"dataset_path": DATASET},
+    )
+
+    def llm_factory(response_model: type[BaseModel], system: str, prompt: str) -> BaseModel:
+        if response_model is DraftPlan:
+            return DraftPlan(
+                rationale="hallucinated dataset_path",
+                tasks=[
+                    DraftTask(
+                        agent="analyst",  # type: ignore[arg-type]
+                        description="analyst task",
+                        input={"dataset_path": "dataset_path"},
+                    )
+                ],
+            )
+        if response_model.__name__ == "_Critique":
+            return response_model()
+        raise AssertionError(f"Unexpected response_model requested: {response_model}")
+
+    runtime = AegisRuntime(
+        DATA_ROOT,
+        llm=FakeLLMProvider(factory=llm_factory),
+        embeddings=FakeEmbeddingProvider(),
+    )
+    state = runtime.run(mission)
+    state = _approve_and_resume(runtime, state)
+
+    assert state["status"] == "completed"
+    assert state["last_error"] is None
+
+
 def test_failure_is_retried_then_recorded() -> None:
     mission = Mission(
         objective="Analyze a missing dataset.",
