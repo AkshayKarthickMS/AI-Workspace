@@ -85,3 +85,15 @@ def test_huggingface_provider_raises_on_transport_failure() -> None:
 
     with pytest.raises(LLMOutputValidationError):
         provider.complete(system="sys", prompt="prompt", response_model=_Answer, max_retries=0)
+
+
+def test_huggingface_provider_sends_bearer_token_when_api_key_set() -> None:
+    provider = HuggingFaceProvider(base_url="http://hf.test", model="m", api_key="secret-token")
+
+    assert provider._client.headers["Authorization"] == "Bearer secret-token"
+
+
+def test_huggingface_provider_omits_auth_header_when_api_key_blank() -> None:
+    provider = HuggingFaceProvider(base_url="http://hf.test", model="m")
+
+    assert "Authorization" not in provider._client.headers

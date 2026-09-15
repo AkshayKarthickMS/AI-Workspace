@@ -1,0 +1,41 @@
+services:
+  - type: web
+    name: aegisos-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./infra/docker/api.Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    envVars:
+      - key: AEGIS_ENVIRONMENT
+        value: production
+      - key: AEGIS_LOG_LEVEL
+        value: INFO
+      - key: AEGIS_DATA_ROOT
+        value: data/demo
+      - key: AEGIS_ARTIFACT_ROOT
+        value: data/artifacts
+      # Free-tier hosted providers -- see AGENTS.md's documented exception
+      # and DEPLOYMENT.md for where to get each of these.
+      - key: AEGIS_MODEL_PROVIDER
+        value: huggingface
+      - key: AEGIS_MODEL_NAME
+        value: llama-3.3-70b-versatile
+      - key: AEGIS_HUGGINGFACE_ENDPOINT_URL
+        value: https://api.groq.com/openai
+      - key: AEGIS_EMBEDDING_PROVIDER
+        value: huggingface
+      - key: AEGIS_EMBEDDING_MODEL_NAME
+        value: sentence-transformers/all-mpnet-base-v2
+      # Secrets / deployment-specific values -- Render prompts for these
+      # during Blueprint setup rather than storing a value here.
+      - key: AEGIS_DATABASE_URL
+        sync: false
+      - key: AEGIS_REDIS_URL
+        sync: false
+      - key: AEGIS_HUGGINGFACE_API_KEY
+        sync: false
+      - key: AEGIS_EMBEDDING_API_KEY
+        sync: false
+      - key: AEGIS_CORS_ORIGINS
+        sync: false

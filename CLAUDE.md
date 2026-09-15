@@ -66,4 +66,4 @@ Environment: Windows, PowerShell primary, Bash tool available for POSIX scripts.
 
 ## Implementation roadmap
 
-All 7 phases are done: ~~Foundation & Infrastructure~~ → ~~Data Models & Persistence~~ → ~~Business Logic (Agents/Tools/Retrieval)~~ → ~~Workflow Orchestration~~ → ~~APIs~~ → ~~Frontend/UI~~ → ~~Tests & Quality Gates~~. See "Current state vs. target" above and `DEVELOPER.md` for how to run everything.
+All 7 phases are done: ~~Foundation & Infrastructure~~ → ~~Data Models & Persistence~~ → ~~Business Logic (Agents/Tools/Retrieval)~~ → ~~Workflow Orchestration~~ → ~~APIs~~ → ~~Frontend/UI~~ → ~~Tests & Quality Gates~~. See "Current state vs. target" above and `DEVELOPER.md` for how to run everything locally, or `DEPLOYMENT.md` for how to put a public instance online on free-tier hosting (Vercel + Render + Neon + Upstash + Groq/Hugging Face — see the AGENTS.md exception this documents).

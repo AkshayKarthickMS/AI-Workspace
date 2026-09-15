@@ -15,7 +15,9 @@ def build_llm_provider(settings: Settings) -> LLMProvider:
         return OllamaProvider(base_url=settings.ollama_base_url, model=settings.model_name)
     if settings.model_provider == "huggingface":
         return HuggingFaceProvider(
-            base_url=settings.huggingface_endpoint_url, model=settings.model_name
+            base_url=settings.huggingface_endpoint_url,
+            model=settings.model_name,
+            api_key=settings.huggingface_api_key,
         )
     raise ValueError(f"Unsupported AEGIS_MODEL_PROVIDER: {settings.model_provider!r}")
 

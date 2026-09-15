@@ -18,13 +18,25 @@ class Settings(BaseSettings):
     )
 
     # Local/open-weight model provider selection (AGENTS.md - never a paid
-    # hosted model API). "ollama" or "huggingface".
+    # hosted model API, with one documented exception for the public demo
+    # deployment only -- see AGENTS.md and DEPLOYMENT.md). "ollama" or
+    # "huggingface".
     model_provider: str = "ollama"
     model_name: str = "qwen2.5:7b-instruct"
     embedding_model_name: str = "nomic-embed-text"
     ollama_base_url: str = "http://localhost:11434"
-    # Local OpenAI-chat-compatible endpoint (e.g. TGI, vLLM, llama.cpp server).
+    # OpenAI-chat-compatible endpoint: a local server (TGI, vLLM, llama.cpp)
+    # by default, or a free-tier hosted one (e.g. Groq) for the deployed demo
+    # -- see the AGENTS.md exception above. huggingface_api_key is sent as a
+    # Bearer token only when set (local servers typically need none).
     huggingface_endpoint_url: str = "http://localhost:8080"
+    huggingface_api_key: str = ""
+
+    # Embedding provider selection, independent of model_provider: "ollama"
+    # (default, local) or "huggingface" (free-tier Hugging Face Inference API
+    # feature-extraction endpoint, for the deployed demo -- see AGENTS.md).
+    embedding_provider: str = "ollama"
+    embedding_api_key: str = ""
 
     # Sandboxed code execution limits (Analyst agent).
     sandbox_timeout_seconds: int = 30

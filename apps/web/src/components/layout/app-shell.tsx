@@ -8,6 +8,8 @@ import { IdentityBadge } from "@/features/identity/identity-badge";
 import { WorkspaceSwitcher } from "@/features/workspace/workspace-switcher";
 import { cn } from "@/lib/utils";
 
+import { DemoBanner } from "./demo-banner";
+
 const NAV_LINKS = [
   { href: "/", label: "Missions" },
   { href: "/knowledge", label: "Knowledge" },
@@ -19,6 +21,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen">
+      <DemoBanner />
       <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-4 sm:px-10">
           <div className="flex items-center gap-8">

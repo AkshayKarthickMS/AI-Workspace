@@ -1,11 +1,14 @@
-"""Local Hugging Face open-weight model provider (ARCHITECTURE.md section 2).
+"""Generic OpenAI-chat-compatible model provider (ARCHITECTURE.md section 2).
 
-Targets a self-hosted, OpenAI-chat-compatible local server (e.g. Text
-Generation Inference, vLLM, or a llama.cpp server) rather than any paid
-hosted API — AGENTS.md requires local/open-weight models only. The schema is
-both requested via ``response_format`` and restated in the system prompt,
-since not every local server enforces the JSON schema strictly server-side;
-either way the result is re-validated through Pydantic before use.
+Targets any server speaking the OpenAI chat-completions shape: a self-hosted
+one (Text Generation Inference, vLLM, llama.cpp) by default per AGENTS.md's
+local/open-weight-models rule, or a free-tier *hosted* one (e.g. Groq)
+for the public demo deployment only -- AGENTS.md documents that exception
+explicitly. ``api_key``, when set, is sent as a Bearer token; local servers
+typically need none. The schema is both requested via ``response_format``
+and restated in the system prompt, since not every server enforces the JSON
+schema strictly server-side; either way the result is re-validated through
+Pydantic before use.
 """
 
 from __future__ import annotations
@@ -28,12 +31,14 @@ class HuggingFaceProvider(LLMProvider):
         *,
         base_url: str,
         model: str,
+        api_key: str = "",
         client: httpx.Client | None = None,
         timeout_seconds: float = 60.0,
     ) -> None:
         self.model = model
+        headers = {"Authorization": f"Bearer {api_key}"} if api_key else {}
         self._client = client or httpx.Client(
-            base_url=base_url.rstrip("/"), timeout=timeout_seconds
+            base_url=base_url.rstrip("/"), timeout=timeout_seconds, headers=headers
         )
 
     def complete[T: BaseModel](

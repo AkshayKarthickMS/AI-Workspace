@@ -29,7 +29,7 @@ from app.events.audit import AuditEvent, AuditSink, CompositeAuditSink
 from app.events.redis_bus import RedisEventBusSink
 from app.llm.base import LLMProvider
 from app.llm.factory import build_traced_llm_provider
-from app.retrieval.embeddings import EmbeddingProvider, OllamaEmbeddingProvider
+from app.retrieval.embeddings import EmbeddingProvider, build_embedding_provider
 from app.retrieval.search import HybridSearchService
 from app.schemas.agents import (
     AgentResult,
@@ -149,9 +149,7 @@ class AegisRuntime:
         # just works against the configured local model stack, with Langfuse
         # tracing applied automatically when configured (ARCHITECTURE.md §11).
         self.llm = llm or build_traced_llm_provider(settings)
-        self.embeddings = embeddings or OllamaEmbeddingProvider(
-            base_url=settings.ollama_base_url, model=settings.embedding_model_name
-        )
+        self.embeddings = embeddings or build_embedding_provider(settings)
         sql_session_factory = sql_session_factory or session_scope
 
         self.orchestrator = OrchestratorAgent(self.llm, self.audit)

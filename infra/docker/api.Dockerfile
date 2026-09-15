@@ -6,8 +6,10 @@ COPY apps/api/app ./app
 COPY apps/api/alembic.ini ./alembic.ini
 COPY apps/api/alembic ./alembic
 COPY data ./data
-RUN pip install --upgrade pip && pip install .
+COPY infra/docker/api-entrypoint.sh /usr/local/bin/api-entrypoint.sh
+RUN pip install --upgrade pip && pip install . \
+    && chmod +x /usr/local/bin/api-entrypoint.sh
 RUN mkdir -p /app/data/artifacts && useradd --create-home --uid 10001 aegis && chown -R aegis:aegis /app
 USER aegis
 EXPOSE 8000
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ENTRYPOINT ["/usr/local/bin/api-entrypoint.sh"]

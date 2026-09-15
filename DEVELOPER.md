@@ -1,6 +1,6 @@
 # Developer Guide
 
-How to run AegisOS locally, what environment variables/keys go where, and how to run the checks CI runs. For architecture/scope, read `ARCHITECTURE.md`/`AGENTS.md`/`CLAUDE.md` first — this file is just the practical "get it running" reference.
+How to run AegisOS locally, what environment variables/keys go where, and how to run the checks CI runs. For architecture/scope, read `ARCHITECTURE.md`/`AGENTS.md`/`CLAUDE.md` first — this file is just the practical "get it running" reference. To put a public instance online (Vercel/Render/free-tier Postgres+Redis+LLM), see `DEPLOYMENT.md` instead.
 
 ## 1. Prerequisites
 
@@ -34,7 +34,7 @@ npm install
 docker compose up --build
 ```
 
-Starts Postgres, Redis, Ollama, the API, and the web app together. First run will also need you to pull a model into Ollama (see section 4).
+Starts Postgres, Redis, Ollama, the API, and the web app together. First run will also need you to pull a model into Ollama (see section 4). The API container runs `alembic upgrade head` automatically on every start (`infra/docker/api-entrypoint.sh`) before starting uvicorn, so there's no separate manual migration step.
 
 - Web: http://localhost:3000
 - API: http://localhost:8000 (docs at `/docs`)

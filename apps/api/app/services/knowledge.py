@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 from app.core.config import get_settings
 from app.db.repositories import KnowledgeChunkRepository, KnowledgeDocumentRepository
 from app.models.knowledge import KnowledgeDocument
-from app.retrieval.embeddings import EmbeddingProvider, OllamaEmbeddingProvider
+from app.retrieval.embeddings import EmbeddingProvider, build_embedding_provider
 from app.retrieval.ingestion import KnowledgeIngestionService
 
 
@@ -26,10 +26,7 @@ def ingest_document(
     embeddings: EmbeddingProvider | None = None,
 ) -> KnowledgeDocument:
     if embeddings is None:
-        settings = get_settings()
-        embeddings = OllamaEmbeddingProvider(
-            base_url=settings.ollama_base_url, model=settings.embedding_model_name
-        )
+        embeddings = build_embedding_provider(get_settings())
     ingestion = KnowledgeIngestionService(embeddings=embeddings)
     return ingestion.ingest(
         document_repository=KnowledgeDocumentRepository(session),
